@@ -9,13 +9,13 @@ class Player:
     def add_card_to_hand(self, card):
         self.hand.add(card)
 
-    def does_continue(self):
-        print("press (D) to Draw another card")
-        print("press (E) to End your turn")
-        return input().upper() == "D"
+    # def does_continue(self):
+    #     print("press (D) to Draw another card")
+    #     print("press (E) to End your turn")
+    #     return input().upper() == "D"
 
-    def print_hand(self):
-        print(self.hand.display())
+    def get_hand_display(self):
+       return self.hand.display()
 
 
 class Hand:
