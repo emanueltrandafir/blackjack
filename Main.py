@@ -1,70 +1,54 @@
-import os
+import math
 
-from model.Deck import Deck
-from model.Player import Player
-
-# nr_of_players = input("Number of players: ")
+from model.blackjack.BlackjackPlayer import BlackjackPlayer
+from manager.GameHandler import GameHandler
 from view.Display import ScreenBuilder
 
-
-header = """
-  _____                                          _____
- |A .  | _____                                  |A .  | _____
- | /.\ ||A ^  | _____                           | /.\ ||A ^  | _____
- |(_._)|| / \ ||A _  | _____     BLACKJACK      |(_._)|| / \ ||A _  | _____
- |  |  || \ / || ( ) ||A_ _ |                   |  |  || \ / || ( ) ||A_ _ |
- |____V||  .  ||(_'_)||( v )|      NIGHT        |____V||  .  ||(_'_)||( v )|
-        |____V||  .  |      |                          |____V||  .  ||     |
-               |____V||  .  |                                 |____V||  .  |
-                      |____V|                                        |____V|
-"""
-
-def header_with_message(msg):
-    return """
-      _____                              
-     |A .  | _____                  
-     | /.\ ||A ^  | _____            
-     |(_._)|| / \ ||A _  | _____     
-     |  |  || \ / || ( ) ||A_ _ |    
-     |____V||  .  ||(_'_)||( v )|     {{message}}
-            |____V||  .  |      |     
-                   |____V||  .  |      
-                          |____V|     
-    """.replace("{{message}}", msg)
-
-sb = ScreenBuilder()
-sb.with_header(header)
-sb.with_question("    New Game (Y/n): ")
-new_game = sb.build_and_get_input()
-
-if not new_game:
-    exit()
+MAX_NR_OF_PLAYERS = 4
+PLAYERS_FILE_NAME = "players.txt"
 
 
+def main():
+    sb = ScreenBuilder()
 
-sb.with_question("    Nr Of Players: ")
-nr_of_players = sb.build_and_get_input()
+    while will_play_again(sb):
+        sb.with_body("").with_question("\tNew Game (Y/n): Y\n\n\tNumber Of Players (max 4): ")
+        nr_of_players = -1
+        while int(nr_of_players) < 1 or int(nr_of_players) > 4:
+            try:
+                nr_of_players = int(sb.build_and_get_input())
+            except:
+                nr_of_players = -1
 
-deck = Deck()
+        players = read_players_from_file(nr_of_players)
 
-dealer = Player("Dealer")
-player1 = Player("player1")
-
-dealer.add_card_to_hand(deck.draw_card())
-
-player1.add_card_to_hand(deck.draw_card())
-player1.add_card_to_hand(deck.draw_card())
+        game = GameHandler(players, sb)
+        game.play_game()
 
 
-sb.with_header(header_with_message(player1.name + "'s  turn!"))
+def will_play_again(sb):
+    sb.with_header("Blackjack Night!").with_body("").with_question("\tNew Game (Y/n): ")
+    return sb.build_and_get_input().lower() != "n"
 
-content = player1.get_hand_display() + "\n\n\n\t\t\t\tpress (D) to Draw another card\n\t\t\t\tpress (E) to End your turn\n"
-sb.with_question(content)
-does_continue = sb.build_and_get_input()
 
-while does_continue:
-    player1.add_card_to_hand(deck.draw_card())
-    content = player1.get_hand_display() + "\n\n\n\t\t\t\tpress (D) to Draw another card\n\t\t\t\tpress (E) to End your turn\n"
-    sb.with_question(content)
-    does_continue = sb.build_and_get_input()
+def read_players_from_file(nr_of_players):
+    players = []
+    with open(PLAYERS_FILE_NAME, 'r') as reader:
+        for line in reader:
+            if len(players) == nr_of_players:
+                return players
+            [name, surname, age, country, money] = line.replace("\n", "").split("\t")
+            players.append(BlackjackPlayer(name + " " + surname, age, country, money))
+    return players
 
+
+def isInt(num):
+    try:
+        int(num)
+        return True
+    except:
+        return False
+
+
+if __name__ == "__main__":
+    main()

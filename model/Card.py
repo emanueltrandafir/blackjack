@@ -1,9 +1,16 @@
 import enum
 
 
-class Card:
-    def __init__(self, value, suit):
+class CardSuit(enum.Enum):
+    Hearts = ("Hearts", "♥")
+    Diamonds = ("Diamonds", "♦")
+    Spades = ("Spades", "♠")
+    Clubs = ("Clubs", "♣")
 
+
+class Card:
+
+    def __init__(self, value, suit):
         if suit not in CardSuit or value < 2 or value > 14:
             raise Exception("illegal args!")
 
@@ -22,11 +29,11 @@ class Card:
             self.cardName = str(value)
 
     def display(self):
-        return "{0} {1}".format(self.cardName, self.suit.value[1])
+        s = self.cardName
+        if self.value != 10:
+            s += " "
+        s += self.suit.value[1]
+        return s
 
-
-class CardSuit(enum.Enum):
-    Hearts = ("Hearts", "♥")
-    Diamonds = ("Diamonds", "♦")
-    Spades = ("Spades", "♠")
-    Clubs = ("Clubs", "♣")
+    def get_values(self):
+        return [self.value]
