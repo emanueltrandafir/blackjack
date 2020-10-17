@@ -12,6 +12,7 @@ def main():
     sb = ScreenBuilder()
 
     while will_play_again(sb):
+        sb.centered_question = False
         sb.with_body("").with_question("\tNew Game (Y/n): Y\n\n\tNumber Of Players (max 4): ")
         nr_of_players = -1
         while int(nr_of_players) < 1 or int(nr_of_players) > 4:

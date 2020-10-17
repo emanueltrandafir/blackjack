@@ -13,8 +13,6 @@ class GameHandler:
         self.dealer = BlackjackPlayer("Igor (Dealer)", 99, "RUS", 99999)
         self.players = players
 
-
-
     def play_game(self):
         self.setup_game()
         self.start_game()
@@ -30,6 +28,30 @@ class GameHandler:
             self.wait_and_rerender_hands()
             self.player_draws_card(player)
             self.wait_and_rerender_hands()
+        self.make_bids()
+
+    def make_bids(self):
+        for player in self.players:
+            player.is_his_turn = True
+            self.rerender_hands()
+            self.screen_builder.with_header("{0}'s bid..'".format(player.name))
+            self.screen_builder.with_centered_question().with_question(
+                "\n\n\t\t\t{0} ({1}.00$), how much do you bid? \n\n>> ".format(player.name.upper(), player.amount))
+            valid_bid = False
+            while not valid_bid:
+                try:
+                    bid = int(self.screen_builder.build_and_get_input())
+                    if bid < 1 or bid > int(player.amount):
+                        print(bid)
+                        print(player.amount)
+                        raise Exception()
+                    player.bid = bid
+                    player.amount = int(player.amount) - bid
+                    valid_bid = True
+                except Exception as e:
+                    print(e)
+                    valid_bid = False
+            player.is_his_turn = False
 
     def start_game(self):
         while self.is_not_finished():
@@ -53,7 +75,8 @@ class GameHandler:
                 winner = p
         self.screen_builder.with_header("Game ended: {0} won!".format(winner.name))
         self.screen_builder.with_body(self.get_game_state_display())
-        self.screen_builder.with_question("\n\t {0} won. \n\n\t Press any key to continue..".format(winner.name)).build_and_get_input()
+        self.screen_builder.with_question(
+            "\n\t {0} won. \n\n\t Press any key to continue..".format(winner.name)).build_and_get_input()
 
     def player_draws_card(self, player):
         player.add_card_to_hand(self.deck.draw_card())
@@ -79,9 +102,12 @@ class GameHandler:
             content += player.get_player_infos_str()
         return content
 
+    def rerender_hands(self):
+        self.screen_builder.with_body(self.get_game_state_display()).build()
+
     def wait_and_rerender_hands(self):
         time.sleep(GameHandler.WAIT_BETWEEN_TURNS)
-        self.screen_builder.with_body(self.get_game_state_display()).build()
+        self.rerender_hands()
 
     def is_not_finished(self):
         for player in self.players:

@@ -8,6 +8,7 @@ class BlackjackPlayer(Player):
     def __init__(self, name, age, country_code, amount):
         super().__init__(name, age, country_code, amount)
         self.stands = False
+        self.bid = 0
 
     def exceeded_dealer_drawing_score(self):
         return self.hand.exceeded_value(BlackjackPlayer.DEALER_DRAWING_TRESHOLD)
@@ -35,4 +36,6 @@ class BlackjackPlayer(Player):
 
     def get_player_infos_str(self):
         arrow = "->" if bool(self.is_his_turn) else "  "
-        return "\n\n    {0} [{1}] {2} ({5}) {3} -\t{4}".format(arrow, self.calculate_best_score(), self.name, self.get_status_str(), self.get_hand_display(), self.country_code)
+        bid = "\t" if "dealer" in self.name.lower() else (str(self.bid) + ".00$")
+        return "\n\n    {0} [{1}] {2}({5}) {6} {3} -    {4}".format(
+            arrow, self.calculate_best_score(), self.name, self.get_status_str(), self.get_hand_display(), self.country_code, bid)
